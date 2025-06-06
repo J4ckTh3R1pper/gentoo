@@ -1,10 +1,47 @@
-# Copyright 1999-2024 Gentoo Authors
+uthors
 # Distributed under the terms of the GNU General Public License v2
 
 EAPI=8
 
 # These don't necessarily have to align with the upstream release.
-BUILD_DEPS_COMMIT="b6438b749138f5411fbb20ab856adaa6566e46eb"
+BUILD_DEPS_COMMIT="29a33e7fcf64012fba5412f1e659c09c8ac896ca"
+ENET_COMMIT="44c85e16279553d9c052e572bcbfcd745fb74abf"
+INPUTTINO_COMMIT="17a9b9ce85c6b8e711f777146d3c706c1a2a9fd9"
+MOONLIGHT_COMMIT="95feaf4951b8dc774671a5d6a1c31d76d78e3ac"
+NANORS_COMMIT="19f07b513e924e471cadd141943c1ec4adc8d0e0"
+TRAY_COMMIT="d45306e686c90a18f5792a1541783d7bc8555bc6"
+SWS_COMMIT="187f798d54a9c6cee742f2eb2c54e9ba26f5a385"
+WLRP_COMMIT="2ec67ebd26b73bada12f3fa6afdd51563b656722"
+DOXYCONFIG_COMMIT="4501c7b191170cd2adcc12336821b65449186d85"
+GOOGLETEST_COMMIT="04ee1b4f2aefdffb0135d7cf2a2c519fe50dabe4"
+TPCB_COMMIT="8833b3a73fab6530cc51e2063a85cced01714cfb"
+VIGEMCLIENT_COMMIT="8d71f6740ffff4671cdadbca255ce528e3cd3fef"
+# WLP_COMMIT="810f1adaf33521cc55fc510566efba2a1418174f"
+NVCH_COMMIT="22441b505d9d9afc1e3002290820909846c24bdc"
+NVAPI_COMMIT="cce4e90b629f712ae6eebafac97739bd1196cdef"
+X265_COMMIT="3bd3dd731b4b4c3fbbe5e513c16bc6ae481a0ec5"
+SVT_AV1_COMMIT="08c18ba0768ed3dbbff0903adc326fb3a7549bd9"
+
+
+FFMPEG_VERSION="7.1"
+
+# To make the assets tarball:
+# PV=
+# EGIT_OVERRIDE_COMMIT_LIZARDBYTE_SUNSHINE=v$PV ebuild sunshine-9999.ebuild clean compile
+# XZ_OPT=-9 tar --xform="s:^:Sunshine-$PV/:" -Jcf /var/cache/distfiles/sunshine-assets-$PV.tar.xz -C /var/tmp/portage/net-misc/sunshine-9999/work/sunshine-9999 assets/
+
+if [[ ${PV} = 9999* ]]; then
+	inherit git-r3
+else
+	SRC_URI="
+		https://github.com/LizardByte/Sunshine/archive/refs/tags/v${PV}.tar.gz
+			-> ${P}.tar.gz# Copyright 1999-2024 Gentoo Authors
+# Distributed under the terms of the GNU General Public License v2
+
+EAPI=8
+
+# These don't necessarily have to align with the upstream release.
+BUILD_DEPS_COMMIT="29a33e7fcf64012fba5412f1e659c09c8ac896ca"
 ENET_COMMIT="44c85e16279553d9c052e572bcbfcd745fb74abf"
 INPUTTINO_COMMIT="17a9b9ce85c6b8e711f777146d3c706c1a2a9fd9"
 MOONLIGHT_COMMIT="95feaf4951b8dc774671a5d6a1c31d76d78e3ac"
@@ -76,7 +113,7 @@ DESCRIPTION="Self-hosted game stream host for Moonlight"
 HOMEPAGE="https://github.com/LizardByte/Sunshine"
 LICENSE="GPL-3"
 SLOT="0"
-IUSE="cuda debug libdrm svt-av1 trayicon vaapi wayland X x264 x265"
+IUSE="cuda debug libdrm systemd svt-av1 trayicon vaapi wayland X x264 x265"
 
 # Strings for CPU features in the useflag[:configure_option] form
 # if :configure_option isn't set, it will use 'useflag' as configure option
@@ -151,6 +188,7 @@ REQUIRED_USE="
 
 CDEPEND="
 	<dev-libs/boost-1.88:=[nls]
+	>=dev-libs/boost-1.86:=[nls]
 	dev-libs/libevdev
 	>=app-text/doxygen-1.10.0
 	dev-libs/cpuinfo
@@ -166,7 +204,7 @@ CDEPEND="
 		sys-libs/libcap
 		x11-libs/libdrm
 	)
-	svt-av1? ( media-libs/svt-av1:= )
+	svt-av1? ( <media-libs/svt-av1-3:= )
 	trayicon? (
 		dev-libs/libayatana-appindicator
 		x11-libs/libnotify
@@ -226,7 +264,204 @@ export npm_config_cache="${S}"/npm_cache
 src_unpack() {
 	if [[ ${PV} = 9999* ]]; then
 		local EGIT_REPO_URI="https://github.com/LizardByte/build-deps.git"
-		local EGIT_BRANCH="chore/bump-x265"
+		# local EGIT_BRANCH="chore/bump-x265"
+		local EGIT_SUBMODULES=( "-*" )
+		local EGIT_CHECKOUT_DIR=${WORKDIR}/build-deps
+		git-r3_src_unpack
+
+
+		https://github.com/LizardByte/build-deps/archive/${BUILD_DEPS_COMMIT}.tar.gz
+			-> LizardByte-build-deps-${BUILD_DEPS_COMMIT}.tar.gz
+		https://github.com/cgutman/enet/archive/${ENET_COMMIT}.tar.gz
+			-> moonlight-enet-${ENET_COMMIT}.tar.gz
+		https://github.com/games-on-whales/inputtino/archive/${INPUTTINO_COMMIT}.tar.gz
+			-> inputtino-${INPUTTINO_COMMIT}.tar.gz
+		https://github.com/moonlight-stream/moonlight-common-c/archive/${MOONLIGHT_COMMIT}.tar.gz
+			-> moonlight-common-c-${MOONLIGHT_COMMIT}.tar.gz
+		https://github.com/sleepybishop/nanors/archive/${NANORS_COMMIT}.tar.gz
+			-> nanors-${NANORS_COMMIT}.tar.gz
+		https://github.com/LizardByte/tray/archive/${TRAY_COMMIT}.tar.gz
+			-> LizardByte-tray-${TRAY_COMMIT}.tar.gz
+		https://github.com/LizardByte/doxyconfig/archive/${DOXYCONFIG_COMMIT}.tar.gz
+			-> doxyconfig-${DOXYCONFIG_COMMIT}.tar.gz
+		https://github.com/michaeltyson/TPCircularBuffer/${TPCB_COMMIT}.tar.gz
+			-> TPCircularBuffer-${TPCB_COMMIT}.tar.gz
+		https://github.com/google/googletest/archive/${GOOGLETEST_COMMIT}.tar.gz
+			-> googletest-${GOOGLETEST_COMMIT}.tar.gz
+		https://github.com/LizardByte/Virtual-Gamepad-Emulation-Client/archive/${VIGEMCLIENT_COMMIT}.tar.gz
+			-> ViGEmClient-${VIGEMCLIENT_COMMIT}.tar.gz
+		https://github.com/FFmpeg/nv-codec-headers/archive/${NVCH_COMMIT}.tar.gz
+			-> nv-codec-headers-${NVCH_COMMIT}.tar.gz
+		https://github.com/LizardByte/nvapi-open-source-sdk/archive/${NVAPI_COMMIT}.tar.gz
+			-> nvapi-opensource-sdk-${NVAPI_COMMIT}.tar.gz
+		https://gitlab.com/eidheim/Simple-Web-Server/-/archive/${SWS_COMMIT}/Simple-Web-Server-${SWS_COMMIT}.tar.bz2
+		https://gitlab.freedesktop.org/wlroots/wlr-protocols/-/archive/${WLRP_COMMIT}/wlr-protocols-${WLRP_COMMIT}.tar.bz2
+		https://ffmpeg.org/releases/ffmpeg-${FFMPEG_VERSION}.tar.xz
+		https://dev.gentoo.org/~chewi/distfiles/${PN}-assets-${PV}.tar.xz
+	"
+		# https://gitlab.freedesktop.org/wayland/wayland-protocols/-/archive/${WLP_COMMIT}/wayland-protocols-${WLP_COMMIT}.tar.bz2
+	KEYWORDS="~amd64 ~arm64"
+	S="${WORKDIR}/Sunshine-${PV}"
+fi
+
+inherit cmake fcaps flag-o-matic systemd toolchain-funcs udev xdg
+
+DESCRIPTION="Self-hosted game stream host for Moonlight"
+HOMEPAGE="https://github.com/LizardByte/Sunshine"
+LICENSE="GPL-3"
+SLOT="0"
+IUSE="cuda debug libdrm systemd svt-av1 trayicon vaapi wayland X x264 x265"
+
+# Strings for CPU features in the useflag[:configure_option] form
+# if :configure_option isn't set, it will use 'useflag' as configure option
+ARM_CPU_FEATURES=(
+	cpu_flags_arm_thumb:armv5te
+	cpu_flags_arm_v6:armv6
+	cpu_flags_arm_thumb2:armv6t2
+	cpu_flags_arm_neon:neon
+	cpu_flags_arm_vfp:vfp
+	cpu_flags_arm_vfpv3:vfpv3
+	cpu_flags_arm_v8:armv8
+	cpu_flags_arm_asimddp:dotprod
+	cpu_flags_arm_i8mm:i8mm
+)
+ARM_CPU_REQUIRED_USE="
+	arm64? ( cpu_flags_arm_v8 )
+	cpu_flags_arm_v8? ( cpu_flags_arm_vfpv3 cpu_flags_arm_neon )
+	cpu_flags_arm_neon? (
+		cpu_flags_arm_vfp
+		arm? ( cpu_flags_arm_thumb2 )
+	)
+	cpu_flags_arm_vfpv3? ( cpu_flags_arm_vfp )
+	cpu_flags_arm_thumb2? ( cpu_flags_arm_v6 )
+	cpu_flags_arm_v6? (
+		arm? ( cpu_flags_arm_thumb )
+	)
+"
+PPC_CPU_FEATURES=( cpu_flags_ppc_altivec:altivec cpu_flags_ppc_vsx:vsx cpu_flags_ppc_vsx2:power8 )
+PPC_CPU_REQUIRED_USE="
+	cpu_flags_ppc_vsx? ( cpu_flags_ppc_altivec )
+	cpu_flags_ppc_vsx2? ( cpu_flags_ppc_vsx )
+"
+X86_CPU_FEATURES_RAW=( 3dnow:amd3dnow 3dnowext:amd3dnowext aes:aesni avx:avx avx2:avx2 fma3:fma3 fma4:fma4 mmx:mmx
+					   mmxext:mmxext sse:sse sse2:sse2 sse3:sse3 ssse3:ssse3 sse4_1:sse4 sse4_2:sse42 xop:xop )
+X86_CPU_FEATURES=( ${X86_CPU_FEATURES_RAW[@]/#/cpu_flags_x86_} )
+X86_CPU_REQUIRED_USE="
+	cpu_flags_x86_avx2? ( cpu_flags_x86_avx )
+	cpu_flags_x86_fma4? ( cpu_flags_x86_avx )
+	cpu_flags_x86_fma3? ( cpu_flags_x86_avx )
+	cpu_flags_x86_xop?  ( cpu_flags_x86_avx )
+	cpu_flags_x86_avx?  ( cpu_flags_x86_sse4_2 )
+	cpu_flags_x86_aes? ( cpu_flags_x86_sse4_2 )
+	cpu_flags_x86_sse4_2?  ( cpu_flags_x86_sse4_1 )
+	cpu_flags_x86_sse4_1?  ( cpu_flags_x86_ssse3 )
+	cpu_flags_x86_ssse3?  ( cpu_flags_x86_sse3 )
+	cpu_flags_x86_sse3?  ( cpu_flags_x86_sse2 )
+	cpu_flags_x86_sse2?  ( cpu_flags_x86_sse )
+	cpu_flags_x86_sse?  ( cpu_flags_x86_mmxext )
+	cpu_flags_x86_mmxext?  ( cpu_flags_x86_mmx )
+	cpu_flags_x86_3dnowext?  ( cpu_flags_x86_3dnow )
+	cpu_flags_x86_3dnow?  ( cpu_flags_x86_mmx )
+"
+
+CPU_FEATURES_MAP=(
+	${ARM_CPU_FEATURES[@]}
+	${PPC_CPU_FEATURES[@]}
+	${X86_CPU_FEATURES[@]}
+)
+IUSE="${IUSE}
+	${CPU_FEATURES_MAP[@]%:*}"
+
+CPU_REQUIRED_USE="
+	${ARM_CPU_REQUIRED_USE}
+	${PPC_CPU_REQUIRED_USE}
+	${X86_CPU_REQUIRED_USE}
+"
+
+REQUIRED_USE="
+	${CPU_REQUIRED_USE}
+	|| ( cuda libdrm wayland X )
+"
+
+CDEPEND="
+	<dev-libs/boost-1.88:=[nls]
+	>=dev-libs/boost-1.86:=[nls]
+	dev-libs/libevdev
+	>=app-text/doxygen-1.10.0
+	dev-libs/cpuinfo
+	dev-libs/openssl:=
+	media-libs/opus
+	net-libs/miniupnpc:=
+	net-misc/curl
+	|| (
+		media-libs/libpulse
+		media-sound/apulse[sdk]
+	)
+	libdrm? (
+		sys-libs/libcap
+		x11-libs/libdrm
+	)
+	svt-av1? ( <media-libs/svt-av1-3:= )
+	trayicon? (
+		dev-libs/libayatana-appindicator
+		x11-libs/libnotify
+	)
+	vaapi? ( media-libs/libva:=[wayland?,X?] )
+	wayland? ( dev-libs/wayland )
+	X? ( x11-libs/libX11 )
+	x264? ( media-libs/x264:= )
+	x265? ( media-libs/x265:= )
+"
+
+RDEPEND="
+	${CDEPEND}
+	media-libs/mesa[vaapi?]
+	X? (
+		x11-libs/libxcb
+		x11-libs/libXfixes
+		x11-libs/libXrandr
+		x11-libs/libXtst
+	)
+"
+
+DEPEND="
+	${CDEPEND}
+	media-libs/amf-headers
+	=media-libs/nv-codec-headers-12*
+	wayland? ( dev-libs/wayland-protocols )
+"
+
+BDEPEND="
+	net-libs/nodejs[npm]
+	virtual/pkgconfig
+	cpu_flags_x86_mmx? ( || ( >=dev-lang/nasm-2.13 >=dev-lang/yasm-1.3 ) )
+	cuda? ( dev-util/nvidia-cuda-toolkit )
+	wayland? ( dev-util/wayland-scanner )
+"
+
+PATCHES=(
+	# "${FILESDIR}"/${PN}-0.22.0-nvcodec.patch
+	# "${FILESDIR}"/${PN}-custom-ffmpeg.patch
+	# "${FILESDIR}"/${PN}-find-npm.patch
+)
+
+# Make this mess a bit simpler.
+CMAKE_IN_SOURCE_BUILD=1
+
+# Make npm behave.
+export npm_config_audit=false
+export npm_config_color=false
+export npm_config_foreground_scripts=true
+export npm_config_loglevel=verbose
+export npm_config_optional=false
+export npm_config_progress=false
+export npm_config_save=false
+export npm_config_cache="${S}"/npm_cache
+
+src_unpack() {
+	if [[ ${PV} = 9999* ]]; then
+		local EGIT_REPO_URI="https://github.com/LizardByte/build-deps.git"
+		# local EGIT_BRANCH="chore/bump-x265"
 		local EGIT_SUBMODULES=( "-*" )
 		local EGIT_CHECKOUT_DIR=${WORKDIR}/build-deps
 		git-r3_src_unpack
@@ -433,5 +668,3 @@ pkg_postrm() {
 	udev_reload
 	xdg_pkg_postrm
 }
-
-
